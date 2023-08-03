@@ -2,20 +2,19 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	"sync"
 
-	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"janjiss.com/rest/users"
+	"janjiss.com/rest/web"
 )
 
-type CreateUser struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
+var wg sync.WaitGroup
 
 func main() {
+	wg.Add(1)
+
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DSN:                  "user=postgres dbname=gorm port=5432 sslmode=disable",
 		PreferSimpleProtocol: true, // disables implicit prepared statement usage
@@ -33,38 +32,7 @@ func main() {
 		return
 	}
 
-	r := gin.Default()
+	go web.StartServer(db)
 
-	usersService := users.NewUserService(db)
-
-	r.GET("/users", func(c *gin.Context) {
-		users := usersService.GetAllUsers()
-
-		c.JSON(http.StatusOK, gin.H{"users": users})
-	})
-
-	r.POST("/users", func(c *gin.Context) {
-		var userRequest *CreateUser
-		var user *users.User
-		var err error
-		if err = c.ShouldBindJSON(&userRequest); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		user, err = usersService.CreateUser(userRequest.Name, userRequest.Email)
-
-		if errors, ok := err.(users.CreateUserError); ok {
-			c.JSON(http.StatusBadRequest, gin.H{"errors": errors.Errors})
-			return
-		}
-
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to insert the user into the database", "message": err.Error()})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{"user": user})
-	})
-	r.Run()
+	wg.Wait()
 }

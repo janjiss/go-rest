@@ -2,6 +2,7 @@ package users
 
 import (
 	"gorm.io/gorm"
+	validator "janjiss.com/rest/helpers/validators"
 )
 
 type UserRepositoryImpl struct {
@@ -20,6 +21,12 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 }
 
 func (repo *UserRepositoryImpl) CreateUser(user *User) error {
+	err := validator.NewValidator(repo.DB).Struct(user)
+
+	if err != nil {
+		return err
+	}
+
 	return repo.DB.Create(&user).Error
 }
 

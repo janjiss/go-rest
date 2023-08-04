@@ -1,6 +1,8 @@
 package users
 
 import (
+	"fmt"
+
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
@@ -34,6 +36,12 @@ func (us *UserService) CreateUser(name, email string) (*User, error) {
 	}
 
 	err := us.repo.CreateUser(&user)
+
+	fmt.Printf("%T", err)
+
+	if invalidErr, ok := err.(*validator.InvalidValidationError); ok {
+		fmt.Println("Invalid argument provided to validation:", invalidErr)
+	}
 
 	if validationErrors, ok := err.(validator.ValidationErrors); ok {
 		errors := CreateUserError{}

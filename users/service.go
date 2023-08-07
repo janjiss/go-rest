@@ -48,7 +48,7 @@ func (us *UserService) CreateUser(name, email string) (*User, error) {
 			})
 
 		}
-		return &user, &errors
+		return &user, errors
 	}
 
 	if err != nil {

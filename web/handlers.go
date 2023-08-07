@@ -24,7 +24,7 @@ func BuildCreateUserHandler(us *users.UserService) func(c *gin.Context) {
 
 		user, err = us.CreateUser(userRequest.Name, userRequest.Email)
 
-		if errors, ok := err.(*users.CreateUserError); ok {
+		if errors, ok := err.(users.CreateUserError); ok {
 			c.JSON(http.StatusBadRequest, gin.H{"errors": errors.Errors})
 			return
 		}

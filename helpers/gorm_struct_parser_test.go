@@ -1,9 +1,8 @@
 package gormStructParser
 
 import (
+	"reflect"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 type TestStruct struct {
@@ -24,5 +23,7 @@ func TestMapStructFieldsToDBFields(t *testing.T) {
 		"Name": "name",
 	}
 
-	assert.Equal(t, expected, result)
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, got %v", expected, result)
+	}
 }

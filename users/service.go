@@ -1,8 +1,11 @@
 package users
 
 import (
+	"errors"
+
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
+	"janjiss.com/rest/login"
 )
 
 type UserService struct {
@@ -60,4 +63,22 @@ func (us *UserService) CreateUser(name, email string) (*User, error) {
 
 func (us *UserService) GetAllUsers() []User {
 	return us.repo.GetAllUsers()
+}
+
+func (us *UserService) Login(email string) (string, error) {
+	user, err := us.repo.FindOneByEmail(email)
+
+	var token string
+
+	if err != nil {
+		return token, errors.New("User not found")
+	}
+
+	token, err = login.GenerateJWT(user.Email)
+
+	if err != nil {
+		return token, errors.New("Failed to generate JWT token")
+	}
+
+	return token, nil
 }

@@ -11,6 +11,7 @@ func StartServer(db *gorm.DB) {
 
 	r := gin.Default()
 
+	r.POST("/login", BuildLoginHandler(us))
 	r.GET("/users", BuildGetAllUsersHandler(us))
 	r.POST("/users", BuildCreateUserHandler(us))
 

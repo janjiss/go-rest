@@ -12,6 +12,10 @@ type CreateUser struct {
 	Email string `json:"email"`
 }
 
+type Login struct {
+	Email string `json:"email"`
+}
+
 func BuildCreateUserHandler(us *users.UserService) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var userRequest *CreateUser
@@ -43,5 +47,28 @@ func BuildGetAllUsersHandler(us *users.UserService) func(c *gin.Context) {
 		users := us.GetAllUsers()
 
 		c.JSON(http.StatusOK, gin.H{"users": users})
+	}
+}
+
+func BuildLoginHandler(us *users.UserService) func(c *gin.Context) {
+	return func(c *gin.Context) {
+
+		var loginRequest *Login
+		var err error
+		var token string
+
+		if err = c.ShouldBindJSON(&loginRequest); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		token, err = us.Login(loginRequest.Email)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"token": token})
 	}
 }

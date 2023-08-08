@@ -1,6 +1,8 @@
 package users
 
 import (
+	"fmt"
+
 	"gorm.io/gorm"
 	validator "janjiss.com/rest/helpers/validators"
 )
@@ -12,6 +14,7 @@ type UserRepositoryImpl struct {
 type UserRepository interface {
 	CreateUser(user *User) error
 	GetAllUsers() []User
+	FindOneByEmail(email string) (*User, error)
 }
 
 func NewUserRepository(db *gorm.DB) UserRepository {
@@ -35,4 +38,14 @@ func (repo *UserRepositoryImpl) GetAllUsers() []User {
 	repo.DB.Find(&users)
 
 	return users
+}
+
+func (repo *UserRepositoryImpl) FindOneByEmail(email string) (*User, error) {
+	var user User
+	if result := repo.DB.Where("email = ?", email).First(&user); result.Error != nil {
+		fmt.Println("Error fetching user:", result.Error)
+		return &user, result.Error
+	}
+
+	return &user, nil
 }

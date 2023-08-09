@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
-	"janjiss.com/rest/login"
+	auth "janjiss.com/rest/login"
 )
 
 type UserService struct {
@@ -74,7 +74,7 @@ func (us *UserService) Login(email string) (string, error) {
 		return token, errors.New("User not found")
 	}
 
-	token, err = login.GenerateJWT(user.Email)
+	token, err = auth.GenerateJWT(user.Email)
 
 	if err != nil {
 		return token, errors.New("Failed to generate JWT token")

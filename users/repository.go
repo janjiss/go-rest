@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"gorm.io/gorm"
+	"janjiss.com/rest/helpers/paginator"
 	validator "janjiss.com/rest/helpers/validators"
 )
 
@@ -13,7 +14,7 @@ type UserRepositoryImpl struct {
 
 type UserRepository interface {
 	CreateUser(user *User) error
-	GetAllUsers() []User
+	GetAllUsers(cursor string) ([]User, error)
 	FindOneByEmail(email string) (*User, error)
 }
 
@@ -33,11 +34,13 @@ func (repo *UserRepositoryImpl) CreateUser(user *User) error {
 	return repo.DB.Create(&user).Error
 }
 
-func (repo *UserRepositoryImpl) GetAllUsers() []User {
-	var users []User
-	repo.DB.Find(&users)
+func (repo *UserRepositoryImpl) GetAllUsers(cursor string) ([]User, error) {
+	users, err := paginator.FetchNextPage[User](repo.DB, cursor, 10)
+	if err != nil {
+		return users, err
+	}
 
-	return users
+	return users, nil
 }
 
 func (repo *UserRepositoryImpl) FindOneByEmail(email string) (*User, error) {

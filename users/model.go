@@ -27,3 +27,7 @@ func (user *User) BeforeCreate(db *gorm.DB) (err error) {
 	user.ID = uuid
 	return
 }
+
+func (user User) GetID() uuid.UUID {
+	return user.ID
+}

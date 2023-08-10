@@ -1,9 +1,11 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"janjiss.com/rest/helpers/paginator"
 	"janjiss.com/rest/users"
 )
 
@@ -14,6 +16,10 @@ type CreateUser struct {
 
 type Login struct {
 	Email string `json:"email"`
+}
+
+type AllUsers struct {
+	Cursor string `json:"cursor"`
 }
 
 func BuildCreateUserHandler(us *users.UserService) func(c *gin.Context) {
@@ -44,9 +50,31 @@ func BuildCreateUserHandler(us *users.UserService) func(c *gin.Context) {
 
 func BuildGetAllUsersHandler(us *users.UserService) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		users := us.GetAllUsers()
 
-		c.JSON(http.StatusOK, gin.H{"users": users})
+		var allUsersRequest *AllUsers
+		var err error
+
+		if err = c.ShouldBindJSON(&allUsersRequest); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		fmt.Println(allUsersRequest.Cursor)
+
+		users, err := us.GetAllUsers(allUsersRequest.Cursor)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
+			return
+		}
+
+		var cursor string
+
+		if len(users) > 0 {
+			cursor = paginator.EncodeCursor(users[len(users)-1])
+		}
+
+		c.JSON(http.StatusOK, gin.H{"users": users, "cursor": cursor})
 	}
 }
 

@@ -61,8 +61,12 @@ func (us *UserService) CreateUser(name, email string) (*User, error) {
 	return &user, nil
 }
 
-func (us *UserService) GetAllUsers() []User {
-	return us.repo.GetAllUsers()
+func (us *UserService) GetAllUsers(cusor string) ([]User, error) {
+	users, err := us.repo.GetAllUsers(cusor)
+	if err != nil {
+		return []User{}, err
+	}
+	return users, nil
 }
 
 func (us *UserService) Login(email string) (string, error) {

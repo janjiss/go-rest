@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
+	"janjiss.com/rest/graphql/graph"
 	"janjiss.com/rest/helpers/paginator"
 	"janjiss.com/rest/users"
 )
@@ -80,7 +83,6 @@ func BuildGetAllUsersHandler(us *users.UserService) func(c *gin.Context) {
 
 func BuildLoginHandler(us *users.UserService) func(c *gin.Context) {
 	return func(c *gin.Context) {
-
 		var loginRequest *Login
 		var err error
 		var token string
@@ -98,5 +100,21 @@ func BuildLoginHandler(us *users.UserService) func(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"token": token})
+	}
+}
+
+func BuildGraphqlHandler(us *users.UserService) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		fmt.Print("HEERRE")
+		h := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{UserService: us}}))
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func BuildGraphqlPlaygroundHandler() gin.HandlerFunc {
+	h := playground.Handler("GraphQL", "/graphql")
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
 	}
 }

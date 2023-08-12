@@ -13,7 +13,22 @@ import (
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented: Users - users"))
+	var usersResponse []*model.User
+	users, err := r.UserService.GetAllUsers("")
+
+	fmt.Println(usersResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, user := range users {
+		usersResponse = append(usersResponse, &model.User{
+			ID:    user.ID.String(),
+			Email: &user.Email,
+		})
+	}
+
+	return usersResponse, nil
 }
 
 // Query returns QueryResolver implementation.

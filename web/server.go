@@ -15,11 +15,11 @@ func StartServer(db *gorm.DB) {
 	r.GET("/playground", BuildGraphqlPlaygroundHandler())
 
 	r.POST("/login", BuildLoginHandler(us))
+	r.POST("/users", BuildCreateUserHandler(us))
 
 	authorized := r.Group("/")
 	authorized.Use(auth.JWTAuthMiddleware())
 	authorized.GET("/users", BuildGetAllUsersHandler(us))
-	authorized.POST("/users", BuildCreateUserHandler(us))
 
 	r.Run()
 }

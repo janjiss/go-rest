@@ -25,7 +25,7 @@ type AllUsers struct {
 	Cursor string `json:"cursor"`
 }
 
-func BuildCreateUserHandler(us *users.UserService) func(c *gin.Context) {
+func BuildCreateUserHandler(us users.UserService) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var userRequest *CreateUser
 		var user *users.User
@@ -51,7 +51,7 @@ func BuildCreateUserHandler(us *users.UserService) func(c *gin.Context) {
 	}
 }
 
-func BuildGetAllUsersHandler(us *users.UserService) func(c *gin.Context) {
+func BuildGetAllUsersHandler(us users.UserService) func(c *gin.Context) {
 	return func(c *gin.Context) {
 
 		var allUsersRequest *AllUsers
@@ -81,7 +81,7 @@ func BuildGetAllUsersHandler(us *users.UserService) func(c *gin.Context) {
 	}
 }
 
-func BuildLoginHandler(us *users.UserService) func(c *gin.Context) {
+func BuildLoginHandler(us users.UserService) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var loginRequest *Login
 		var err error
@@ -103,7 +103,7 @@ func BuildLoginHandler(us *users.UserService) func(c *gin.Context) {
 	}
 }
 
-func BuildGraphqlHandler(us *users.UserService) func(c *gin.Context) {
+func BuildGraphqlHandler(us users.UserService) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		h := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{UserService: us}}))
 		h.ServeHTTP(c.Writer, c.Request)

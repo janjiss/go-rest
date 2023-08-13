@@ -8,8 +8,14 @@ import (
 	auth "janjiss.com/rest/login"
 )
 
-type UserService struct {
+type UserServiceImpl struct {
 	repo UserRepository
+}
+
+type UserService interface {
+	CreateUser(name, email string) (*User, error)
+	GetAllUsers(cusor string) ([]User, error)
+	Login(email string) (string, error)
 }
 
 type CreateUserError struct {
@@ -24,13 +30,13 @@ func (e CreateUserError) Error() string {
 	return e.Message
 }
 
-func NewUserService(db *gorm.DB) *UserService {
-	return &UserService{
+func NewUserService(db *gorm.DB) *UserServiceImpl {
+	return &UserServiceImpl{
 		repo: NewUserRepository(db),
 	}
 }
 
-func (us *UserService) CreateUser(name, email string) (*User, error) {
+func (us *UserServiceImpl) CreateUser(name, email string) (*User, error) {
 	user := User{
 		Name:  name,
 		Email: email,
@@ -61,7 +67,7 @@ func (us *UserService) CreateUser(name, email string) (*User, error) {
 	return &user, nil
 }
 
-func (us *UserService) GetAllUsers(cusor string) ([]User, error) {
+func (us *UserServiceImpl) GetAllUsers(cusor string) ([]User, error) {
 	users, err := us.repo.GetAllUsers(cusor)
 	if err != nil {
 		return []User{}, err
@@ -69,7 +75,7 @@ func (us *UserService) GetAllUsers(cusor string) ([]User, error) {
 	return users, nil
 }
 
-func (us *UserService) Login(email string) (string, error) {
+func (us *UserServiceImpl) Login(email string) (string, error) {
 	user, err := us.repo.FindOneByEmail(email)
 
 	var token string

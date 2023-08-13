@@ -7,5 +7,5 @@ import "janjiss.com/rest/users"
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	UserService *users.UserService
+	UserService users.UserService
 }

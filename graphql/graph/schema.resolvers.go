@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"janjiss.com/rest/graphql/graph/model"
 )
@@ -16,7 +15,6 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	var usersResponse []*model.User
 	users, err := r.UserService.GetAllUsers("")
 
-	fmt.Println(usersResponse)
 	if err != nil {
 		return nil, err
 	}

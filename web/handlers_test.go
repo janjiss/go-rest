@@ -14,18 +14,23 @@ import (
 
 // This is a mock implementation of an in-memory user service
 type InMemoryUserService struct {
-	storage map[string]*users.User
+	storage []*users.User
 }
 
 func (us *InMemoryUserService) CreateUser(name, email string) (*users.User, error) {
 	user := &users.User{Name: name, Email: email}
-	// For simplicity, use email as the key
-	us.storage[email] = user
+	us.storage = append(us.storage, user)
 	return user, nil
 }
 
 func (us *InMemoryUserService) GetAllUsers(cursor string) ([]users.User, error) {
-	return []users.User{}, nil
+	var users []users.User
+
+	for _, user := range us.storage {
+		users = append(users, *user)
+	}
+
+	return users, nil
 }
 
 func (us *InMemoryUserService) Login(email string) (string, error) {
@@ -33,14 +38,21 @@ func (us *InMemoryUserService) Login(email string) (string, error) {
 }
 
 func (us *InMemoryUserService) FindOneByEmail(email string) (*users.User, error) {
-	return us.storage[email], nil
+
+	for _, user := range us.storage {
+		if user.Email == email {
+			return user, nil
+		}
+	}
+
+	return nil, nil
 }
 
 func TestBuildCreateUserHandler(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	// Setup
-	userService := &InMemoryUserService{storage: make(map[string]*users.User)}
+	userService := &InMemoryUserService{storage: make([]*users.User, 0)}
 
 	router := gin.Default()
 	router.POST("/users", BuildCreateUserHandler(userService))
@@ -93,5 +105,49 @@ func TestBuildCreateUserHandler(t *testing.T) {
 		if !reflect.DeepEqual(expectedResponse, response) {
 			t.Errorf("Expected response and received response are not equal: \nGot:  %#v \nWant: %#v", expectedResponse, response)
 		}
+	})
+}
+
+func TestBuildGetAllUsersHandler(t *testing.T) {
+
+	gin.SetMode(gin.TestMode)
+
+	// Setup
+	userService := &InMemoryUserService{storage: make([]*users.User, 0)}
+
+	router := gin.Default()
+	router.GET("/users", BuildGetAllUsersHandler(userService))
+
+	t.Run("success", func(t *testing.T) {
+		userService.CreateUser("TestName", "email@user.com")
+
+		body, _ := json.Marshal(&AllUsers{Cursor: "00000000-0000-0000-0000-000000000000"})
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodGet, "/users", bytes.NewBuffer(body))
+
+		router.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status OK but got %v", w.Code)
+		}
+
+		expectedResponse := map[string]interface{}{
+			"cursor": "AAAAAAAAAAAAAAAAAAAAAA==",
+			"users": []interface{}{
+				map[string]interface{}{
+					"name":  "TestName",
+					"email": "email@user.com",
+					"id":    "00000000-0000-0000-0000-000000000000",
+				},
+			},
+		}
+
+		var response map[string]interface{}
+		json.Unmarshal(w.Body.Bytes(), &response)
+
+		if !reflect.DeepEqual(expectedResponse, response) {
+			t.Errorf("Expected response and received response are not equal: \nGot:  %#v \nWant: %#v", expectedResponse, response)
+		}
+
 	})
 }

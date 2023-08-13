@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -61,8 +60,6 @@ func BuildGetAllUsersHandler(us users.UserService) func(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-
-		fmt.Println(allUsersRequest.Cursor)
 
 		users, err := us.GetAllUsers(allUsersRequest.Cursor)
 

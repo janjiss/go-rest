@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -55,15 +56,19 @@ func TestBuildCreateUserHandler(t *testing.T) {
 			t.Errorf("Expected status OK but got %v", w.Code)
 		}
 
+		expectedResponse := map[string]interface{}{
+			"user": map[string]interface{}{
+				"name":  "TestName",
+				"email": "test@email.com",
+				"id":    "00000000-0000-0000-0000-000000000000",
+			},
+		}
+
 		var response map[string]interface{}
 		json.Unmarshal(w.Body.Bytes(), &response)
-		userResponse, ok := response["user"].(map[string]interface{})
-		if !ok {
-			t.Errorf("Expected user in response")
-			return
-		}
-		if userResponse["name"] != "TestName" {
-			t.Errorf("Expected TestName but got %v", userResponse["Name"])
+
+		if !reflect.DeepEqual(expectedResponse, response) {
+			t.Errorf("Expected response and received response are not equal: \nGot:  %#v \nWant: %#v", expectedResponse, response)
 		}
 	})
 
@@ -78,9 +83,15 @@ func TestBuildCreateUserHandler(t *testing.T) {
 		}
 
 		var response map[string]interface{}
+
+		expectedResponse := map[string]interface{}{
+			"error": "invalid character 'i' looking for beginning of value",
+		}
+
 		json.Unmarshal(w.Body.Bytes(), &response)
-		if _, ok := response["error"]; !ok {
-			t.Errorf("Expected error in response")
+
+		if !reflect.DeepEqual(expectedResponse, response) {
+			t.Errorf("Expected response and received response are not equal: \nGot:  %#v \nWant: %#v", expectedResponse, response)
 		}
 	})
 }

@@ -105,7 +105,6 @@ func BuildLoginHandler(us *users.UserService) func(c *gin.Context) {
 
 func BuildGraphqlHandler(us *users.UserService) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		fmt.Print("HEERRE")
 		h := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{UserService: us}}))
 		h.ServeHTTP(c.Writer, c.Request)
 	}

@@ -34,7 +34,7 @@ func (us *InMemoryUserService) GetAllUsers(cursor string) ([]users.User, error) 
 }
 
 func (us *InMemoryUserService) Login(email string) (string, error) {
-	return "", nil
+	return "JWT_TOKEN", nil
 }
 
 func (us *InMemoryUserService) FindOneByEmail(email string) (*users.User, error) {
@@ -140,6 +140,43 @@ func TestBuildGetAllUsersHandler(t *testing.T) {
 					"id":    "00000000-0000-0000-0000-000000000000",
 				},
 			},
+		}
+
+		var response map[string]interface{}
+		json.Unmarshal(w.Body.Bytes(), &response)
+
+		if !reflect.DeepEqual(expectedResponse, response) {
+			t.Errorf("Expected response and received response are not equal: \nGot:  %#v \nWant: %#v", expectedResponse, response)
+		}
+
+	})
+}
+
+func TestBuildLoginHandler(t *testing.T) {
+
+	gin.SetMode(gin.TestMode)
+
+	// Setup
+	userService := &InMemoryUserService{storage: make([]*users.User, 0)}
+
+	router := gin.Default()
+	router.POST("/login", BuildLoginHandler(userService))
+
+	t.Run("success", func(t *testing.T) {
+		userService.CreateUser("TestName", "email@user.com")
+
+		body, _ := json.Marshal(&Login{Email: "email@user.com"})
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewBuffer(body))
+
+		router.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status OK but got %v", w.Code)
+		}
+
+		expectedResponse := map[string]interface{}{
+			"token": "JWT_TOKEN",
 		}
 
 		var response map[string]interface{}

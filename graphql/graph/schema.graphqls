@@ -4,9 +4,24 @@
 
 type User {
   id: ID!
-  email: String
+  email: String!
+  name: String!
 }
 
 type Query {
   users: [User!]!
 }
+
+input CreateUserInput {
+  email: String!
+  name: String!
+}
+
+type CreateUserPayload {
+  user: User!
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): CreateUserPayload!
+}
+

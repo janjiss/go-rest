@@ -6,9 +6,36 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"janjiss.com/rest/graphql/graph/model"
+	"janjiss.com/rest/users"
 )
+
+// CreateUser is the resolver for the createUser field.
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.CreateUserPayload, error) {
+	var user *users.User
+	var err error
+
+	user, err = r.UserService.CreateUser(input.Name, input.Email)
+
+	fmt.Println("User: ", user)
+
+	if err != nil {
+		fmt.Printf("Error: %v", err)
+		return nil, err
+	}
+
+	// fmt.Printf("User: %v", user)
+
+	return &model.CreateUserPayload{
+		User: &model.User{
+			ID:    user.ID.String(),
+			Email: user.Email,
+			Name:  user.Name,
+		},
+	}, nil
+}
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
@@ -22,14 +49,19 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	for _, user := range users {
 		usersResponse = append(usersResponse, &model.User{
 			ID:    user.ID.String(),
-			Email: &user.Email,
+			Email: user.Email,
+			Name:  user.Name,
 		})
 	}
 
 	return usersResponse, nil
 }
 
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
+type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

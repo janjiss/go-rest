@@ -37,6 +37,23 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 	}, nil
 }
 
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.LoginPayload, error) {
+	var response *model.LoginPayload
+
+	token, err := r.UserService.Login(input.Email)
+
+	if err != nil {
+		return nil, err
+	}
+
+	response = &model.LoginPayload{
+		Token: token,
+	}
+
+	return response, nil
+}
+
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	var usersResponse []*model.User

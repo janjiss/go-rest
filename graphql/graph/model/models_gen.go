@@ -11,6 +11,14 @@ type CreateUserPayload struct {
 	User *User `json:"user"`
 }
 
+type LoginInput struct {
+	Email string `json:"email"`
+}
+
+type LoginPayload struct {
+	Token string `json:"token"`
+}
+
 type User struct {
 	ID    string `json:"id"`
 	Email string `json:"email"`

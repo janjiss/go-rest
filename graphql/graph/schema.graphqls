@@ -21,7 +21,16 @@ type CreateUserPayload {
   user: User!
 }
 
+input LoginInput {
+  email: String!
+}
+
+type LoginPayload {
+  token: String!
+}
+
 type Mutation {
   createUser(input: CreateUserInput!): CreateUserPayload!
+  login(input: LoginInput!): LoginPayload!
 }
 

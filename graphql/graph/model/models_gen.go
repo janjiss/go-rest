@@ -19,8 +19,25 @@ type LoginPayload struct {
 	Token string `json:"token"`
 }
 
+type PageInfo struct {
+	HasNextPage     bool    `json:"hasNextPage"`
+	HasPreviousPage bool    `json:"hasPreviousPage"`
+	StartCursor     *string `json:"startCursor,omitempty"`
+	EndCursor       *string `json:"endCursor,omitempty"`
+}
+
 type User struct {
 	ID    string `json:"id"`
 	Email string `json:"email"`
 	Name  string `json:"name"`
+}
+
+type UserConnection struct {
+	Edges    []*UserEdge `json:"edges,omitempty"`
+	PageInfo *PageInfo   `json:"pageInfo"`
+}
+
+type UserEdge struct {
+	Cursor string `json:"cursor"`
+	Node   *User  `json:"node"`
 }

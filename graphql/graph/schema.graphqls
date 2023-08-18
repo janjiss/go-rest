@@ -8,6 +8,23 @@ type User {
   name: String!
 }
 
+type UserEdge {
+  cursor: String!
+  node: User!
+}
+
+type UserConnection {
+  edges: [UserEdge]
+  pageInfo: PageInfo!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
 type Query {
   users: [User!]!
 }
@@ -33,4 +50,3 @@ type Mutation {
   createUser(input: CreateUserInput!): CreateUserPayload!
   login(input: LoginInput!): LoginPayload!
 }
-

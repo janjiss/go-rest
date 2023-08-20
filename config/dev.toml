@@ -1,0 +1,5 @@
+db_name = "go_rest"
+db_port = "5432"
+db_enable_ssl = "false"
+db_host = "localhost"
+db_user = "postgres"

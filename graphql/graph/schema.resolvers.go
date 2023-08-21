@@ -19,14 +19,10 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 
 	user, err = r.UserService.CreateUser(input.Name, input.Email)
 
-	fmt.Println("User: ", user)
-
 	if err != nil {
 		fmt.Printf("Error: %v", err)
 		return nil, err
 	}
-
-	// fmt.Printf("User: %v", user)
 
 	return &model.CreateUserPayload{
 		User: &model.User{

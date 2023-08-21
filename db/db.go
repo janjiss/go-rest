@@ -30,15 +30,11 @@ func NewDB() *gorm.DB {
 
 	var dbConfig DBConfig
 
-	fmt.Printf(string(configFile))
-
 	err = toml.Unmarshal(configFile, &dbConfig)
 
 	if err != nil {
 		panic("Failed to parse config file")
 	}
-
-	fmt.Println(dbConfig)
 
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DSN:                  fmt.Sprintf("user=%s dbname=%s port=%s sslmode=%s", dbConfig.DBUser, dbConfig.DBName, dbConfig.DBPort, dbConfig.DBEnableSSL),
